@@ -6,15 +6,16 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 """
-Expected input structure (It just runs for every subfolders in the base_dir below. Naming conventions for subfolders and files within subfolders should be similar):
+Expected input structure:
+
 BASE_DIR/
-+-- sample1-pharokka/
-¦   +-- sample1.functions
-¦   +-- sample1.faa
-¦
-+-- sample2-pharokka/
-¦   +-- sample2.functions
-¦   +-- sample2.faa
+|-- sample1-pharokka/
+|   |-- sample1.ffn
+|   |-- sample1.faa
+|
+|-- sample2-pharokka/
+|   |-- sample2.ffn
+|   |-- sample2.faa
 """
 
 ### Replace with the relevant parameters, such as destination folder, which keyword to prioritize, etc. ###
