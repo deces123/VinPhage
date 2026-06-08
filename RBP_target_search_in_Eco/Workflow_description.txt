@@ -1,0 +1,86 @@
+The RBP_target_search_based_on_keywords.py current use is mostly to confirm that certain genes/proteins are not recognized/annotated in the original BAKTA faa files (you may use it if you work with known datasets where the target of phage RBPs is already known).
+From below, the codes/steps should be run chronologically, if their headers use numbers instead of letters, since many steps are dependent on the previous steps.
+
+A. fastANI: 
+The script_for_fastANI.sh is used only because a personal laptop does not have enough RAM to do an all-vs-all Average Nucleotide Identity (ANI) comparison. 
+If working on a HPC with enough RAM and cores, just skip the script and go straight to command-line, where reference.txt and query.txt contains the file paths to your samples. 
+(example "fastANI --ql reference.txt --rl query.txt -o fastani.out -t 10")
+
+B. fastAAI: 
+Just move all the .faa files from BAKTA to the same folder of your choosing, and run the following (adjust threads used accordingly to your RAM):
+"fastaai build_db --proteins fastaai_all_proteins/ --threads 6 --verbose --output fastAAI --database fastAAI_db.db --compress"
+"fastaai db_query --query fastAAI/database/fastAAI_db.db --target fastAAI/database/fastAAI_db.db --threads 6 --verbose --output_style matrix --do_stdev --output fastAAI"
+
+1. Roary (Make a text file that contains paths to the gff files. If the gff files do not contain genomic sequences, add it from the FASTA file to the gff. Onwards, run like below): ("-e --mafft" to quickly generate a core gene alignment; "- p" is for thread allocation; "-i" is for minimum percentage identity for blastp)
+"roary -e --mafft -i 95 -p 8 $(cat gff_cluster1_list.txt)"
+
+2. snp-sites (uses the core_gene_alignment.aln output by roary):
+"snp-sites -c core_gene_alignment.aln > core_snps.aln"
+
+3. FastTree (uses the core_snps.aln produced by snp-sites):
+"FastTree -fastest core_snps.aln > core_GWAS.tree"
+
+4. unitig-caller (prepare a text file that contains the file paths to all the fasta files; --kmer can be specified for the kmer size used to built the graph. By default this is 31 bp):
+"unitig-caller --call --refs refs.txt --out out_prefix"
+
+5. Before pyseer, you need to convert the Newick tree produced by FastTree into a format usable by pyseer (the below flag is to make an output for use with pyseer's mixed model):
+"python phylogeny_distance.py --lmm core_genome.tree > phylogeny_similarity.tsv"
+
+6. pyseer only performs GWAS per trait/phage. If you want to run pyseer automatically through multiple traits/phages, uses the script script_to_run_pyseer_recursively.sh by opening the script and edit the locations of your input files, output files, and other parameters to your discretion. Otherwise, just use command-line, and uses "pyseer --help" for instructions on how to do so.
+
+7. pyseer results include *_kmers.txt and *_kmer_patterns.txt. Run the following to obtain Bonferroni threshold value equivalence of 0.05 for each phage/trait:
+"
+for pattern_file in *_kmer_patterns.txt; do
+    base=${pattern_file%_kmer_patterns.txt}
+    log_file="log_bonferroni/${base}_logs.txt"
+
+    python count_patterns.py \
+        --alpha 0.05 \
+        --cores 4 \
+        --memory 1000 \
+        --temp /bonferroni_filtered_results \
+        "$pattern_file" \
+        > "$log_file"
+done
+"
+
+8. Do something like the following to obtain individual qq plots for each phage/trait. Examine them individually to know how well you have accounted for population structure.
+"
+for f in *_kmers.txt; do     
+     python qq_plot.py "$f" --output "qqplot/${f%_kmers.txt}_qqplot"
+done
+"
+
+9. Edit filter_bonferroni_kmers.sh and run the script to filter the kmers based on the above Bonferroni values, and remove kmers with bad-chisq.
+
+10. Prepare a reference.txt file based on the instructions in the "Annotating k-mers" section from the pyseer usage guide (https://pyseer.readthedocs.io/en/master/usage.html#processing-k-mer-output). Then do something like the following to annotate the filtered kmers, and make log file for each run:
+"
+for i in *_significant_kmers.txt; do
+    base=${i%_significant_kmers.txt}
+
+    annotate_hits_pyseer \
+        "$i" \
+        references.txt \
+        "${base}_annotated.txt" \
+        > "gene_hits_summary/${base}_log.txt" \
+        2>&1
+done
+"
+
+11. The following is for summarizing the pyseer k-mers as hits in genes:
+"
+for file in *_annotated.txt; do
+    base=$(basename "$file" _annotated.txt)
+
+    echo "Processing $base"
+
+    python summarise_annotations.py --nearby "$file" \
+        > "${base}_gene_summary.txt"
+
+done
+"
+
+12. 
+
+13. Scoary2 (Uses gene_presence_absence.Rtab returned from roary. traits.csv is a bacteria-phage infection matrix that you prepare yourself):
+"scoary2 --genes gene_presence_absence.Rtab --gene-data-type 'gene-count:\t' --traits traits.csv --outdir scoary_result --n-permut 1000"
