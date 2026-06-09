@@ -18,7 +18,7 @@ Just move all the .faa files from BAKTA to the same folder of your choosing, and
 "snp-sites -c core_gene_alignment.aln > core_snps.aln"
 
 3. FastTree (uses the core_snps.aln produced by snp-sites):
-"FastTree -fastest core_snps.aln > core_GWAS.tree"
+"FastTree -fastest -nt core_snps.aln > core_GWAS.tree"
 
 4. unitig-caller (prepare a text file that contains the file paths to all the fasta files; --kmer can be specified for the kmer size used to built the graph. By default this is 31 bp):
 "unitig-caller --call --refs refs.txt --out out_prefix"
