@@ -51,7 +51,7 @@ for f in *_kmers.txt; do
 done
 "
 
-9. Edit filter_bonferroni_kmers.sh and run the script to filter the kmers based on the above Bonferroni values, and remove kmers with bad-chisq.
+9. Edit filter_bonferroni_kmers.sh (this runs the count_patterns.py script, so for convenience, deposit both scripts in the same directory) and run the script to filter the kmers based on the above Bonferroni values, and remove kmers with bad-chisq.
 
 10. Prepare a reference.txt file based on the instructions in the "Annotating k-mers" section from the pyseer usage guide (https://pyseer.readthedocs.io/en/master/usage.html#processing-k-mer-output). Then do something like the following to annotate the filtered kmers, and make log file for each run:
 "
@@ -80,7 +80,9 @@ for file in *_annotated.txt; do
 done
 "
 
-12. 
-
-13. Scoary2 (Uses gene_presence_absence.Rtab returned from roary. traits.csv is a bacteria-phage infection matrix that you prepare yourself):
+12. Scoary2 (Uses gene_presence_absence.Rtab returned from roary. traits.csv is a bacteria-phage infection matrix that you prepare yourself):
 "scoary2 --genes gene_presence_absence.Rtab --gene-data-type 'gene-count:\t' --traits traits.csv --outdir scoary_result --n-permut 1000"
+
+13. Edit the script filter_scoary_trait.sh and run it to filter the scoary2 traits, and genes for each trait, to your desired threshold for best_fisher_q and best_empirical_p. This returns a list of all genes for each trait that passes those thresholds.
+
+14. Edit the script finding_overlaps_between_pyseer_and_scoary.py and run it to get a result file for overlapping results from both scoary2 and pyseer, which contains all the statistics created by the two programs for each gene for each trait (Refer to the Github pages of pyseer and scoary2 to understand the statistics outputs).
