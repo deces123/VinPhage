@@ -6,4 +6,10 @@ Starting from BAKTA results, the general workflow for GWAS analyses of genes cor
 - I used unitig-caller version 1.3.2 (Holley & Melsted, 2020) to build a population graph to extract unitigs for pyseer. I then ran pyseer with a matrix that contains binary infection values for bacteria/phage, a converted Newick tree to fit with pyseer's format, and the unitigs file.
 - The gene presence/absence matrix from Roary, the Newick tree, and a matrix that contains binary infection values for bacteria/phage were used to run Scoary2.
 
-I explained what I did, generally speaking, in the workflow_description.txt, since a lot of what I did is command lines only, so there is very little automation. The miscellaneous steps like setting up conda environments, ensuring files are in the correct formats, naming conventions are the same between files, etc., are up to the readers/users. This assumes you have done those steps yourself. I do not guarantee these tools will work the same if you use different versions of them. 
+I explained what I did, generally speaking, in the Workflow_description.txt, since a lot of what I did is command lines only, so there is very little automation. The miscellaneous steps like setting up conda environments, ensuring files are in the correct formats, naming conventions are the same between files, etc., are up to the readers/users. This assumes you have done those steps yourself. I do not guarantee these tools will work the same if you use different versions of them. 
+
+DISCLAIMER: I do not make the following scripts (they are found at https://github.com/mgalardini/pyseer/tree/master/scripts), and inside contain information on who makes them:
+- count_patterns.py
+- phylogeny_distance.py
+- qq_plot.py
+- summarise_annotations.py
