@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-### Alter this to the file path of the significant_genes.tsv from scoary
+### Alter this to the file path of the result file from step #13
 scoary = pd.read_csv(
     "/home/deces123/Project/Vin_Phage/bakta/scoary_Ecoli/scoary/significant_genes.tsv",
     sep="\t"
