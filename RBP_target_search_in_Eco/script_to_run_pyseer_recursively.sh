@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -uo pipefail
 
 # INPUT FILES
 TRAITS="traits_fixed.csv"
